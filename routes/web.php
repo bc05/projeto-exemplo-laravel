@@ -29,4 +29,4 @@ Route::get('user/{id}', function($userId){
 	}
 	echo "Nome: {$user->name} <br> Setor: {$user->sector->description}";
 	exit();
-});
+})->where('id', '[0-9]+');
