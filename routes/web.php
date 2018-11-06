@@ -18,3 +18,15 @@ Route::get('/', function () {
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
+
+Route::get('user/{id}', function($userId){
+	
+	$user = \App\User::with('sector')->find($userId);
+
+	if(!$user){
+		echo "Usuário não encontrado";
+		exit();
+	}
+	echo "Nome: {$user->name} <br> Setor: {$user->sector->description}";
+	exit();
+});
