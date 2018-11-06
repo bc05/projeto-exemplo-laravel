@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Auth\RegistersUsers;
+use App\Sector;
 
 class RegisterController extends Controller
 {
@@ -40,6 +41,12 @@ class RegisterController extends Controller
         $this->middleware('guest');
     }
 
+    public function showRegistrationForm()
+    {
+        $sectors = Sector::orderBy('description')->pluck('description', 'id');
+        return view('auth.register', compact('sectors'));
+    }
+
     /**
      * Get a validator for an incoming registration request.
      *
@@ -52,6 +59,7 @@ class RegisterController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:6', 'confirmed'],
+            'sector_id' => ['required', 'numeric', 'exists:sector,id']
         ]);
     }
 
@@ -63,10 +71,8 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
-        return User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => Hash::make($data['password']),
-        ]);
+        $pass = Hash::make(array_get($data, 'password'));
+        array_set($data, 'password', $pass);
+        return User::create(array_only($data, (new User())->getFillable()));
     }
 }
